@@ -70,6 +70,15 @@ export default function App() {
     return saved === 'true';
   });
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [mobileDateIndex, setMobileDateIndex] = useState(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
     const index = eachDayOfInterval(APRIL_2026).findIndex(d => format(d, 'yyyy-MM-dd') === today);
@@ -395,134 +404,138 @@ export default function App() {
             )}
 
             {/* Calendar Grid (Desktop) */}
-            <main className="hidden md:block relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              {isSidebarCollapsed && (
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="absolute top-3 left-3 z-10 h-8 w-8 p-0 bg-white shadow-sm"
-                  onClick={() => setIsSidebarCollapsed(false)}
-                  title="Expand Sidebar"
-                >
-                  <ChevronRight size={16} />
-                </Button>
-              )}
-              
-              <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50/50">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="py-3 text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    {day}
-                  </div>
-                ))}
-              </div>
-              
-              <div className="grid grid-cols-7">
-                {/* Padding for start of month (April 1, 2026 is Wednesday = index 3) */}
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={`pad-${i}`} className="bg-slate-50/20 border border-slate-100" />
-                ))}
+            {!isMobile && (
+              <main className="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                {isSidebarCollapsed && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="absolute top-3 left-3 z-10 h-8 w-8 p-0 bg-white shadow-sm"
+                    onClick={() => setIsSidebarCollapsed(false)}
+                    title="Expand Sidebar"
+                  >
+                    <ChevronRight size={16} />
+                  </Button>
+                )}
                 
-                {allDays.map((date: Date) => {
-                  const dateStr = format(date, 'yyyy-MM-dd');
-                  const examCourse = Object.keys(EXAM_DATES).find(
-                    key => EXAM_DATES[key as Course] === dateStr
-                  ) as Course | undefined;
-
-                  return (
-                    <CalendarDay
-                      key={dateStr}
-                      day={state.days[dateStr]}
-                      onDeleteBlock={deleteBlock}
-                      onUpdateBlockTitle={updateBlockTitle}
-                      onToggleComplete={toggleComplete}
-                      onToggleCrossOut={toggleCrossOut}
-                      isToday={dateStr === todayStr}
-                      examLabel={examCourse}
-                    />
-                  );
-                })}
-
-                {/* Padding for end of month (April 30 is Thursday = index 4, so 2 days padding) */}
-                {Array.from({ length: 2 }).map((_, i) => (
-                  <div key={`pad-end-${i}`} className="bg-slate-50/20 border border-slate-100" />
-                ))}
-              </div>
-
-              <DragOverlay dropAnimation={{
-                sideEffects: defaultDropAnimationSideEffects({
-                  styles: {
-                    active: {
-                      opacity: '0.5',
-                    },
-                  },
-                }),
-              }}>
-                {activeBlock ? (
-                  <div className={cn(
-                    "p-2 rounded-md border text-xs font-medium shadow-xl ring-2 ring-slate-400 scale-105",
-                    activeBlock.isCompleted 
-                      ? "bg-slate-100 border-slate-200 text-slate-400" 
-                      : COURSE_COLORS[activeBlock.course]
-                  )}>
-                    {activeBlock.title}
-                  </div>
-                ) : null}
-              </DragOverlay>
-            </main>
-
-            {/* Calendar Single Day (Mobile) */}
-            <main className="md:hidden space-y-4">
-              <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  disabled={mobileDateIndex === 0}
-                  onClick={() => setMobileDateIndex(prev => prev - 1)}
-                >
-                  <ChevronLeft size={20} />
-                </Button>
+                <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50/50">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} className="py-3 text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      {day}
+                    </div>
+                  ))}
+                </div>
                 
-                <div className="text-center">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-                    {format(allDays[mobileDateIndex], 'EEEE')}
-                  </div>
-                  <div className="text-lg font-bold text-slate-800">
-                    {format(allDays[mobileDateIndex], 'MMMM d, yyyy')}
-                  </div>
+                <div className="grid grid-cols-7">
+                  {/* Padding for start of month (April 1, 2026 is Wednesday = index 3) */}
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={`pad-${i}`} className="bg-slate-50/20 border border-slate-100" />
+                  ))}
+                  
+                  {allDays.map((date: Date) => {
+                    const dateStr = format(date, 'yyyy-MM-dd');
+                    const examCourse = Object.keys(EXAM_DATES).find(
+                      key => EXAM_DATES[key as Course] === dateStr
+                    ) as Course | undefined;
+
+                    return (
+                      <CalendarDay
+                        key={dateStr}
+                        day={state.days[dateStr]}
+                        onDeleteBlock={deleteBlock}
+                        onUpdateBlockTitle={updateBlockTitle}
+                        onToggleComplete={toggleComplete}
+                        onToggleCrossOut={toggleCrossOut}
+                        isToday={dateStr === todayStr}
+                        examLabel={examCourse}
+                      />
+                    );
+                  })}
+
+                  {/* Padding for end of month (April 30 is Thursday = index 4, so 2 days padding) */}
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <div key={`pad-end-${i}`} className="bg-slate-50/20 border border-slate-100" />
+                  ))}
                 </div>
 
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  disabled={mobileDateIndex === allDays.length - 1}
-                  onClick={() => setMobileDateIndex(prev => prev + 1)}
-                >
-                  <ChevronRight size={20} />
-                </Button>
-              </div>
+                <DragOverlay dropAnimation={{
+                  sideEffects: defaultDropAnimationSideEffects({
+                    styles: {
+                      active: {
+                        opacity: '0.5',
+                      },
+                    },
+                  }),
+                }}>
+                  {activeBlock ? (
+                    <div className={cn(
+                      "p-2 rounded-md border text-xs font-medium shadow-xl ring-2 ring-slate-400 scale-105",
+                      activeBlock.isCompleted 
+                        ? "bg-slate-100 border-slate-200 text-slate-400" 
+                        : COURSE_COLORS[activeBlock.course]
+                    )}>
+                      {activeBlock.title}
+                    </div>
+                  ) : null}
+                </DragOverlay>
+              </main>
+            )}
 
-              <div className="min-h-[400px]">
-                {(() => {
-                  const date = allDays[mobileDateIndex];
-                  const dateStr = format(date, 'yyyy-MM-dd');
-                  const examCourse = Object.keys(EXAM_DATES).find(
-                    key => EXAM_DATES[key as Course] === dateStr
-                  ) as Course | undefined;
+            {/* Calendar Single Day (Mobile) */}
+            {isMobile && (
+              <main className="space-y-4">
+                <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    disabled={mobileDateIndex === 0}
+                    onClick={() => setMobileDateIndex(prev => prev - 1)}
+                  >
+                    <ChevronLeft size={20} />
+                  </Button>
+                  
+                  <div className="text-center">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
+                      {format(allDays[mobileDateIndex], 'EEEE')}
+                    </div>
+                    <div className="text-lg font-bold text-slate-800">
+                      {format(allDays[mobileDateIndex], 'MMMM d, yyyy')}
+                    </div>
+                  </div>
 
-                  return (
-                    <CalendarDay
-                      day={state.days[dateStr]}
-                      onDeleteBlock={deleteBlock}
-                      onUpdateBlockTitle={updateBlockTitle}
-                      onToggleComplete={toggleComplete}
-                      onToggleCrossOut={toggleCrossOut}
-                      isToday={dateStr === todayStr}
-                      examLabel={examCourse}
-                    />
-                  );
-                })()}
-              </div>
-            </main>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    disabled={mobileDateIndex === allDays.length - 1}
+                    onClick={() => setMobileDateIndex(prev => prev + 1)}
+                  >
+                    <ChevronRight size={20} />
+                  </Button>
+                </div>
+
+                <div className="min-h-[400px]">
+                  {(() => {
+                    const date = allDays[mobileDateIndex];
+                    const dateStr = format(date, 'yyyy-MM-dd');
+                    const examCourse = Object.keys(EXAM_DATES).find(
+                      key => EXAM_DATES[key as Course] === dateStr
+                    ) as Course | undefined;
+
+                    return (
+                      <CalendarDay
+                        day={state.days[dateStr]}
+                        onDeleteBlock={deleteBlock}
+                        onUpdateBlockTitle={updateBlockTitle}
+                        onToggleComplete={toggleComplete}
+                        onToggleCrossOut={toggleCrossOut}
+                        isToday={dateStr === todayStr}
+                        examLabel={examCourse}
+                      />
+                    );
+                  })()}
+                </div>
+              </main>
+            )}
           </div>
         </div>
       </div>
