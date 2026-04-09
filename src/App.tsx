@@ -362,6 +362,7 @@ export default function App() {
                                   <SelectItem value="PHAR 303">PHAR 303 (Pink)</SelectItem>
                                   <SelectItem value="PHAR 307">PHAR 307 (Green)</SelectItem>
                                   <SelectItem value="PHAR 306">PHAR 306 (Purple)</SelectItem>
+                                  <SelectItem value="EOSC">EOSC (Orange)</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>

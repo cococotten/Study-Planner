@@ -23,6 +23,17 @@ export function CalendarDay({ day, onDeleteBlock, onUpdateBlockTitle, onToggleCo
 
   const dayNumber = day.date.split('-')[2];
 
+  const getExamStyles = () => {
+    return { 
+      bg: "bg-pink-50/50 ring-pink-300", 
+      text: "text-pink-600", 
+      badge: "text-pink-500 bg-pink-100" 
+    };
+  };
+
+  const examStyles = examLabel ? getExamStyles() : null;
+  const examShortLabel = examLabel ? (examLabel.includes(' ') ? examLabel.split(' ')[1] : examLabel) : '';
+
   return (
     <div
       ref={setNodeRef}
@@ -30,7 +41,7 @@ export function CalendarDay({ day, onDeleteBlock, onUpdateBlockTitle, onToggleCo
         "relative min-h-[140px] p-2 border border-slate-200 bg-white transition-colors flex flex-col gap-1 rounded-lg shadow-sm",
         isOver && "bg-slate-50 ring-2 ring-slate-300 ring-inset",
         isToday && "ring-2 ring-blue-400 ring-inset bg-blue-50/30",
-        examLabel && "bg-pink-50/50 ring-2 ring-pink-300 ring-inset"
+        examStyles && cn(examStyles.bg, "ring-2 ring-inset")
       )}
     >
       <div className="flex justify-between items-start mb-1">
@@ -38,13 +49,16 @@ export function CalendarDay({ day, onDeleteBlock, onUpdateBlockTitle, onToggleCo
           <span className={cn(
             "text-sm font-semibold text-slate-500",
             isToday && "text-blue-600",
-            examLabel && "text-pink-600"
+            examStyles && examStyles.text
           )}>
             {parseInt(dayNumber)}
           </span>
           {examLabel && (
-            <span className="text-[10px] font-bold text-pink-500 uppercase tracking-tighter bg-pink-100 px-1.5 py-0.5 rounded leading-none">
-              EXAM: {examLabel.split(' ')[1]}
+            <span className={cn(
+              "text-[10px] font-bold uppercase tracking-tighter px-1.5 py-0.5 rounded leading-none",
+              examStyles?.badge
+            )}>
+              EXAM: {examShortLabel}
             </span>
           )}
         </div>

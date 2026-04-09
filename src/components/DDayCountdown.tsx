@@ -15,7 +15,17 @@ export function DDayCountdown() {
     return diff > 0 ? `-${diff}` : `+${Math.abs(diff)}`;
   };
 
-  const courses: Course[] = ['PHAR 303', 'PHAR 307', 'PHAR 306'];
+  const courses = Object.keys(EXAM_DATES) as Course[];
+
+  const getBadgeStyles = (course: Course) => {
+    switch (course) {
+      case 'PHAR 303': return "border-pink-200 text-pink-700 bg-pink-50";
+      case 'PHAR 307': return "border-green-200 text-green-700 bg-green-50";
+      case 'PHAR 306': return "border-purple-200 text-purple-700 bg-purple-50";
+      case 'EOSC': return "border-amber-200 text-amber-700 bg-amber-50";
+      default: return "border-slate-200 text-slate-700 bg-slate-50";
+    }
+  };
 
   return (
     <div className="flex flex-col gap-2 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
@@ -26,9 +36,7 @@ export function DDayCountdown() {
             <span className="text-xs font-semibold text-slate-600">{course}</span>
             <Badge variant="outline" className={cn(
               "font-mono text-sm px-2 py-0.5",
-              course === 'PHAR 303' ? "border-pink-200 text-pink-700 bg-pink-50" :
-              course === 'PHAR 307' ? "border-green-200 text-green-700 bg-green-50" :
-              "border-purple-200 text-purple-700 bg-purple-50"
+              getBadgeStyles(course)
             )}>
               D{getDDay(EXAM_DATES[course])}
             </Badge>
