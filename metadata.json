@@ -1,0 +1,5 @@
+{
+  "name": "Study Flow",
+  "description": "A minimal, interactive study planner with draggable study blocks and exam countdowns.",
+  "requestFramePermissions": []
+}
